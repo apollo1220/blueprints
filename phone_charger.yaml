@@ -22,7 +22,7 @@ blueprint:
         number:
           min: 10
           max: 95
-          unit_of_measurement: '%%'
+          unit_of_measurement: percentage
     charged_battery:
       name: Charged Battery
       description: Battery above which the phone should stop charging (should be greater then Low Battery)
@@ -30,7 +30,7 @@ blueprint:
         number:
           min: 80
           max: 100
-          unit_of_measurement: '%%'
+          unit_of_measurement: percentage
   source_url: https://github.com/apollo1220/blueprints/blob/main/phone_charger.yaml
 mode: single
 max_exceeded: silent
