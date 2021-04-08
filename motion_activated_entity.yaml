@@ -28,8 +28,7 @@ blueprint:
         automation is triggered.
       selector:
         target:
-          entity:
-            domain: light
+          entity: {}
     no_motion_wait:
       name: Turn off wait time (seconds)
       description: Time in seconds to leave the target entity on after last motion
