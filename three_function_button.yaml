@@ -1,0 +1,22 @@
+blueprint:
+  name: Three function button
+  description: Setup actions for three function buttons. For example the SONOFF button with Press, Double Press, and Hold.
+  domain: automation
+  input:
+    zigbee_id:
+      name: Device Id
+      description: Id of button. Can be found by inspecting zha_event events.
+      selector:
+        string:
+  source_url: https://github.com/apollo1220/blueprints/blob/main/three_function_button.yaml
+variables:
+trigger:
+  - platform: event
+    event_type: zha_event
+      endpoint_id: 1
+      command: "toggle"
+      unique_id: !input zigbee_id
+condition:
+action:
+  - service: homeassistant.toggle
+    entity_id:

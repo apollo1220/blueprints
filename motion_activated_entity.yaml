@@ -5,14 +5,14 @@ blueprint:
     \nRequired entities:\n  - Motion sensor (single sensor or group)\n  - Target entity\
     \ (light, switch, scene or script)\n\n\nOptional features:\n- You can set a cutoff\
     \ entity of which the value determines whether the illuminance level is low and\
-    \ the automation needs to trigger. - You can define a blocking entity, which blocks\
-    \ the automation from running when this entity's state is on. - You van define\
+    \ the automation needs to trigger. \n- You can define a blocking entity, which blocks\
+    \ the automation from running when this entity's state is on. \n- You van define\
     \ a turn-off blocking entity, which blocks the entity from turning off after the\
-    \ set delay. - Time limits can also be defined to limit the time before and after\
-    \ the automation should trigger. - If you want the entity to turn off after a\
-    \ certain amount of seconds, you can use the Wait Time input. - If you want another\
+    \ set delay. \n- Time limits can also be defined to limit the time before and after\
+    \ the automation should trigger. \n- If you want the entity to turn off after a\
+    \ certain amount of seconds, you can use the Wait Time input. \n- If you want another\
     \ entity than the target_entity to turn off after the delay, you can define a\
-    \ separate Turn-off entity. - If you do not enable the optional entities the automation\
+    \ separate Turn-off entity. \n- If you do not enable the optional entities the automation\
     \ will skip these conditions."
   domain: automation
   input:
@@ -20,13 +20,16 @@ blueprint:
       name: Motion Sensor
       description: This sensor will trigger the turning on of the target entity.
       selector:
-        entity: {}
+        entity:
+          domain: binary_sensor
     target_entity:
       name: Target entity.
       description: The light, switch, scene to turn on (or script to run) when the
         automation is triggered.
       selector:
-        entity: {}
+        target:
+          entity:
+            domain: light
     no_motion_wait:
       name: Turn off wait time (seconds)
       description: Time in seconds to leave the target entity on after last motion
@@ -68,16 +71,14 @@ blueprint:
         value.
       default:
       selector:
-        entity:
-          domain: input_datetime
+        time:
     time_limit_before:
       name: (OPTIONAL) Only run before time.
       description: Automation will only run when time is earlier than this input_datetime
         value.
       default:
       selector:
-        entity:
-          domain: input_datetime
+        time:
     turn_off_blocker_entity:
       name: (OPTIONAL) Turn-off Blocking entity
       description: If this entity's state is on, it will prevent the target entity
@@ -93,7 +94,7 @@ blueprint:
       default:
       selector:
         entity: {}
-  source_url: https://github.com/apollo1220/blueprints/motion_activated_entity.yaml
+  source_url: https://github.com/apollo1220/blueprints/blob/main/motion_activated_entity.yaml
 mode: restart
 max_exceeded: silent
 variables:
@@ -122,14 +123,14 @@ condition:
 - condition: template
   value_template: '{% set current_time = now().strftime("%H:%M")  %}
 
-    {% if time_limit_before != none and time_limit_after == none %} {{ states[time_limit_before].state
+    {% if time_limit_before != none and time_limit_after == none %} {{ time_limit_before
     > current_time }} {% elif time_limit_before == none and time_limit_after != none
-    %} {{ states[time_limit_after].state < current_time }} {% elif time_limit_before
+    %} {{ time_limit_after < current_time }} {% elif time_limit_before
     != none and time_limit_after != none %} {% set before_limit_is_on_next_day = time_limit_after
-    > time_limit_before  %} {% if not before_limit_is_on_next_day %} {{ (states[time_limit_after].state
-    < current_time) and (states[time_limit_before].state > current_time) }} {% elif
-    before_limit_is_on_next_day %} {{ (states[time_limit_before].state > current_time)
-    or (states[time_limit_after].state < current_time) }} {% endif %} {% else %} true
+    > time_limit_before  %} {% if not before_limit_is_on_next_day %} {{ (time_limit_after
+    < current_time) and (time_limit_before > current_time) }} {% elif
+    before_limit_is_on_next_day %} {{ (time_limit_before > current_time)
+    or (time_limit_after < current_time) }} {% endif %} {% else %} true
     {% endif %}
 
     '
