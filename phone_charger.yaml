@@ -1,0 +1,52 @@
+blueprint:
+  name: Charge phone
+  description: Charges phone until a percentage and then turns off until percentage drops below a defined point.
+  domain: automation
+  input:
+    phone_battery:
+      name: Phone Battery level
+      description: This sensor will be used to determine the charge level of the phone
+      selector:
+        entity:
+          domain: sensor
+          device_class: battery
+    phone_charger:
+      name: Phone Charger
+      description: Entity that controls supplying power to the phone
+      selector:
+        entity: {}
+    low_battery:
+      name: Low Battery
+      description: Battery below which the phone should be charged
+      selector:
+        number:
+          min: 10
+          max: 95
+          unit_of_measurement: %
+    charged_battery:
+      name: Charged Battery
+      description: Battery above which the phone should stop charging (should be greater then Low Battery)
+      selector:
+        number:
+          min: 80
+          max: 100
+          unit_of_measurement: %
+  source_url: https://github.com/apollo1220/blueprints/blob/main/phone_charger.yaml
+mode: single
+max_exceeded: silent
+trigger:
+  - platform: numeric_state
+    entity_id: !input phone_battery
+    below: !input low_battery
+action:
+  - service: homeassistant.turn_on
+    target:
+      entity_id: !input phone_charger
+  - wait_for_trigger:
+    - platform: numeric_state
+      entity_id: !input phone_battery
+      above: !input charged_battery
+    continue_on_timeout: false
+  - service: homeassistant.turn_off
+    target:
+      entity_id: !input phone_charger
