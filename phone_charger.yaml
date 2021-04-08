@@ -30,7 +30,7 @@ blueprint:
         number:
           min: 80
           max: 100
-          unit_of_measurement: '%''
+          unit_of_measurement: '%'
   source_url: https://github.com/apollo1220/blueprints/blob/main/phone_charger.yaml
 mode: single
 max_exceeded: silent
