@@ -11,26 +11,32 @@ blueprint:
         text: {}
     press_service:
       name: Press Service
+      description: Service to call for example script.turn_on, light.turn_off, media_player.media_pause. There isn't a selector for service so this is just plain text.
       selector:
-        object: {}
+        text: {}
     press_entity:
       name: Press Entity
+      description: Entity that should have the service performed on it.
       selector:
         entity: {}
     double_press_service:
       name: Double Press Service
+      description: Service to call for example script.turn_on, light.turn_off, media_player.media_pause. There isn't a selector for service so this is just plain text.
       selector:
-        object: {}
+        text: {}
     double_press_entity:
       name: Double Press Entity
+      description: Entity that should have the service performed on it.
       selector:
         entity: {}
     hold_service:
       name: Hold Service
+      description: Service to call for example script.turn_on, light.turn_off, media_player.media_pause. There isn't a selector for service so this is just plain text.
       selector:
-        object: {}
+        text: {}
     hold_entity:
       name: Hold Entity
+      description: Entity that should have the service performed on it.
       selector:
         entity: {}
   source_url: https://github.com/apollo1220/blueprints/blob/main/sonoff_zigbee_button.yaml
