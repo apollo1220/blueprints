@@ -137,7 +137,7 @@ condition:
     '
 action:
 - service: homeassistant.turn_on
-  entity_id: !input 'target_entity'
+  target: !input 'target_entity'
 - condition: template
   value_template: '{{ no_motion_wait != none }}'
 - wait_for_trigger:
@@ -159,4 +159,4 @@ action:
       entity_id: !input 'target_off_entity'
   default:
   - service: homeassistant.turn_off
-    entity_id: !input 'target_entity'
+    target: !input 'target_entity'

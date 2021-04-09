@@ -18,7 +18,8 @@ blueprint:
       name: Press Entity
       description: Entity that should have the service performed on it.
       selector:
-        entity: {}
+        target:
+          entity: {}
     double_press_service:
       name: Double Press Service
       description: Service to call for example script.turn_on, light.turn_off, media_player.media_pause. There isn't a selector for service so this is just plain text.
@@ -28,7 +29,8 @@ blueprint:
       name: Double Press Entity
       description: Entity that should have the service performed on it.
       selector:
-        entity: {}
+        target:
+          entity: {}
     hold_service:
       name: Hold Service
       description: Service to call for example script.turn_on, light.turn_off, media_player.media_pause. There isn't a selector for service so this is just plain text.
@@ -38,7 +40,8 @@ blueprint:
       name: Hold Entity
       description: Entity that should have the service performed on it.
       selector:
-        entity: {}
+        target:
+          entity: {}
   source_url: https://github.com/apollo1220/blueprints/blob/main/sonoff_zigbee_button.yaml
 variables:
   zigbee_id: !input 'zigbee_id'
@@ -61,16 +64,16 @@ action:
       value_template: '{{ trigger.event.data.command == "toggle" }}'
     sequence:
     - service: !input 'press_service'
-      entity_id: !input 'press_entity'
+      target: !input 'press_entity'
   - conditions:
     - condition: template
       value_template: '{{ trigger.event.data.command == "on" }}'
     sequence:
     - service: !input 'double_press_service'
-      entity_id: !input 'double_press_entity'
+      target: !input 'double_press_entity'
   - conditions:
     - condition: template
       value_template: '{{ trigger.event.data.command == "off" }}'
     sequence:
     - service: !input 'hold_service'
-      entity_id: !input 'hold_entity'
+      target: !input 'hold_entity'
