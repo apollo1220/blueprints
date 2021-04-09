@@ -70,14 +70,16 @@ blueprint:
         value.
       default:
       selector:
-        time:
+        entity:
+          domain: input_datetime
     time_limit_before:
       name: (OPTIONAL) Only run before time.
       description: Automation will only run when time is earlier than this input_datetime
         value.
       default:
       selector:
-        time:
+        entity:
+          domain: input_datetime
     turn_off_blocker_entity:
       name: (OPTIONAL) Turn-off Blocking entity
       description: If this entity's state is on, it will prevent the target entity
@@ -122,14 +124,14 @@ condition:
 - condition: template
   value_template: '{% set current_time = now().strftime("%H:%M")  %}
 
-    {% if time_limit_before != none and time_limit_after == none %} {{ time_limit_before
+    {% if time_limit_before != none and time_limit_after == none %} {{ states[time_limit_before].state
     > current_time }} {% elif time_limit_before == none and time_limit_after != none
-    %} {{ time_limit_after < current_time }} {% elif time_limit_before
+    %} {{ states[time_limit_after].state < current_time }} {% elif time_limit_before
     != none and time_limit_after != none %} {% set before_limit_is_on_next_day = time_limit_after
-    > time_limit_before  %} {% if not before_limit_is_on_next_day %} {{ (time_limit_after
-    < current_time) and (time_limit_before > current_time) }} {% elif
-    before_limit_is_on_next_day %} {{ (time_limit_before > current_time)
-    or (time_limit_after < current_time) }} {% endif %} {% else %} true
+    > time_limit_before  %} {% if not before_limit_is_on_next_day %} {{ (states[time_limit_after].state
+    < current_time) and (states[time_limit_before].state > current_time) }} {% elif
+    before_limit_is_on_next_day %} {{ (states[time_limit_before].state > current_time)
+    or (states[time_limit_after].state < current_time) }} {% endif %} {% else %} true
     {% endif %}
 
     '
