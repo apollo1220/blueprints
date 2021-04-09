@@ -106,7 +106,6 @@ variables:
   time_limit_before: !input 'time_limit_before'
   time_limit_after: !input 'time_limit_after'
   no_motion_wait: !input 'no_motion_wait'
-  entity_domain: '{{ states[target_entity].domain }}'
   turn_off_blocker_entity: !input 'turn_off_blocker_entity'
   target_off_entity: !input 'target_off_entity'
 trigger:
@@ -115,7 +114,7 @@ trigger:
   to: 'on'
 condition:
 - condition: template
-  value_template: '{{ (states[target_entity].state == ''on'') or (illuminance_currently
+  value_template: '{{ (states(target_entity) == ''on'') or (illuminance_currently
     == none) or (illuminance_cutoff == none) or (states[illuminance_currently].state
     | int < illuminance_cutoff | int) }}'
 - condition: template
