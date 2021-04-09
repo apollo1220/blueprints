@@ -9,48 +9,27 @@ blueprint:
       description: Id of button. Can be found by inspecting zha_event events.
       selector:
         text: {}
-    press_service:
-      name: Press Service
-      description: Service to call for example script.turn_on, light.turn_off, media_player.media_pause. There isn't a selector for service so this is just plain text.
+    press_action:
+      name: Press Action
+      description: Action to perform on Press.
       selector:
-        text: {}
-    press_entity:
-      name: Press Entity
-      description: Entity that should have the service performed on it.
+        action: {}
+    double_press_action:
+      name: Double Press Action
+      description: Action to perform on Double Press.
       selector:
-        target:
-          entity: {}
-    double_press_service:
-      name: Double Press Service
-      description: Service to call for example script.turn_on, light.turn_off, media_player.media_pause. There isn't a selector for service so this is just plain text.
+        action: {}
+    hold_action:
+      name: Hold Action
+      description: Action to perform on Hold.
       selector:
-        text: {}
-    double_press_entity:
-      name: Double Press Entity
-      description: Entity that should have the service performed on it.
-      selector:
-        target:
-          entity: {}
-    hold_service:
-      name: Hold Service
-      description: Service to call for example script.turn_on, light.turn_off, media_player.media_pause. There isn't a selector for service so this is just plain text.
-      selector:
-        text: {}
-    hold_entity:
-      name: Hold Entity
-      description: Entity that should have the service performed on it.
-      selector:
-        target:
-          entity: {}
+        action: {}
   source_url: https://github.com/apollo1220/blueprints/blob/main/sonoff_zigbee_button.yaml
 variables:
   zigbee_id: !input 'zigbee_id'
-  press_service: !input 'press_service'
-  press_entity: !input 'press_entity'
-  double_press_service: !input 'double_press_service'
-  double_press_entity: !input 'double_press_entity'
-  hold_service: !input 'hold_service'
-  hold_entity: !input 'hold_entity'
+  press_action: !input 'press_action'
+  double_press_action: !input 'double_press_action'
+  hold_action: !input 'hold_action'
 trigger:
 - platform: event
   event_type: zha_event
@@ -62,18 +41,12 @@ action:
   - conditions:
     - condition: template
       value_template: '{{ trigger.event.data.command == "toggle" }}'
-    sequence:
-    - service: !input 'press_service'
-      target: !input 'press_entity'
+    sequence: !input 'press_action'
   - conditions:
     - condition: template
       value_template: '{{ trigger.event.data.command == "on" }}'
-    sequence:
-    - service: !input 'double_press_service'
-      target: !input 'double_press_entity'
+    sequence: !input 'double_press_action'
   - conditions:
     - condition: template
       value_template: '{{ trigger.event.data.command == "off" }}'
-    sequence:
-    - service: !input 'hold_service'
-      target: !input 'hold_entity'
+    sequence: !input 'hold_action'
