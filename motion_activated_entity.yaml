@@ -55,7 +55,7 @@ blueprint:
       selector:
         number:
           min: 0
-          max: 30
+          max: 100
           unit_of_measurement: lx
     blocker_entity:
       name: (OPTIONAL) Blocking entity

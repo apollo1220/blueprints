@@ -1,0 +1,62 @@
+blueprint:
+  name: Sonoff Zigbee Button
+  description: Setup actions for three functions of the SONOFF Zigbee button with Press, Double Press, and Hold.
+  domain: automation
+  input:
+    zigbee_id:
+      name: Device Id
+      description: Id of button. Can be found by inspecting zha_event events.
+      selector:
+        text:
+    press_service:
+      name: Press Service
+      selector:
+        object:
+    press_entity:
+      name: Press Entity
+      selector:
+        entity: {}
+    double_press_service:
+      name: Double Press Service
+      selector:
+        object:
+    double_press_entity:
+      name: Double Press Entity
+      selector:
+        entity: {}
+    hold_service:
+      name: Hold Service
+      selector:
+        object:
+    hold_entity:
+      name: Hold Entity
+      selector:
+        entity: {}
+  source_url: https://github.com/apollo1220/blueprints/blob/main/sonoff_zigbee_button.yaml
+variables:
+trigger:
+  - platform: event
+    event_type: zha_event
+    event_data:
+      endpoint_id: 1
+      unique_id: !input zigbee_id
+action:
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: '{{ trigger.event_data.command == toggle }}'
+      sequence:
+        - service: homeassistant.turn_on
+          entity_id: !input press_entity
+    - conditions:
+      - condition: template
+        value_template: '{{ trigger.event_data.command == on }}'
+      sequence:
+        - service: homeassistant.turn_off
+          entity_id: !input double_press_entity
+    - conditions:
+      - condition: template
+        value_template: '{{ trigger.event_data.command == off }}'
+      sequence:
+        - service: homeassistant.toggle
+          entity_id: !input hold_entity
