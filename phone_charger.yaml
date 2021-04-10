@@ -46,13 +46,25 @@ trigger:
 - platform: numeric_state
   entity_id: !input 'phone_battery'
   below: !input 'low_battery'
+- platform: numeric_state
+  entity_id: !input 'phone_battery'
+  above: !input 'charged_battery'
 action:
-- service: homeassistant.turn_on
-  target: !input 'phone_charger'
-- wait_for_trigger:
-  - platform: numeric_state
-    entity_id: !input 'phone_battery'
-    above: !input 'charged_battery'
-  continue_on_timeout: false
-- service: homeassistant.turn_off
-  target: !input 'phone_charger'
+- choose:
+  - conditions:
+    - condition: numeric-state
+      entity_id: !input 'phone_battery'
+      above: !input 'charged_battery'
+    sequence:
+      - service: homeassistant.turn_off
+        target: !input 'phone_charger'
+  default:
+    - service: homeassistant.turn_on
+      target: !input 'phone_charger'
+    - wait_for_trigger:
+      - platform: numeric_state
+        entity_id: !input 'phone_battery'
+        above: !input 'charged_battery'
+      continue_on_timeout: false
+    - service: homeassistant.turn_off
+      target: !input 'phone_charger'
