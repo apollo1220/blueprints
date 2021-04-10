@@ -114,8 +114,8 @@ trigger:
   to: 'on'
 condition:
 - condition: template
-  value_template: '{{ (states(target_entity) == ''on'') or (illuminance_currently
-    == none) or (illuminance_cutoff == none) or (states[illuminance_currently].state
+  value_template: '{{ (illuminance_currently == none)
+    or (illuminance_cutoff == none) or (states[illuminance_currently].state
     | int < illuminance_cutoff | int) }}'
 - condition: template
   value_template: '{{ (blocker_entity == none) or (states[blocker_entity].state ==
