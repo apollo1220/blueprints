@@ -52,7 +52,7 @@ trigger:
 action:
 - choose:
   - conditions:
-    - condition: numeric-state
+    - condition: numeric_state
       entity_id: !input 'phone_battery'
       above: !input 'charged_battery'
     sequence:
