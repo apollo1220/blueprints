@@ -27,8 +27,7 @@ blueprint:
       description: The light, switch, scene to turn on (or script to run) when the
         automation is triggered.
       selector:
-        target:
-          entity: {}
+        entity: {}
     no_motion_wait:
       name: Turn off wait time (seconds)
       description: Time in seconds to leave the target entity on after last motion
@@ -114,8 +113,8 @@ trigger:
   to: 'on'
 condition:
 - condition: template
-  value_template: '{{ (illuminance_currently == none)
-    or (illuminance_cutoff == none) or (states[illuminance_currently].state
+  value_template: '{{ (states(target_entity) == ''on'') or (illuminance_currently
+    == none) or (illuminance_cutoff == none) or (states[illuminance_currently].state
     | int < illuminance_cutoff | int) }}'
 - condition: template
   value_template: '{{ (blocker_entity == none) or (states[blocker_entity].state ==
@@ -136,7 +135,7 @@ condition:
     '
 action:
 - service: homeassistant.turn_on
-  target: !input 'target_entity'
+  entity_id: !input 'target_entity'
 - condition: template
   value_template: '{{ no_motion_wait != none }}'
 - wait_for_trigger:
@@ -158,4 +157,4 @@ action:
       entity_id: !input 'target_off_entity'
   default:
   - service: homeassistant.turn_off
-    target: !input 'target_entity'
+    entity_id: !input 'target_entity'
