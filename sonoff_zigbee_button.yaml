@@ -4,11 +4,13 @@ blueprint:
     Press, Double Press, and Hold.
   domain: automation
   input:
-    zigbee_id:
-      name: Device Id
-      description: Id of button. Can be found by inspecting zha_event events.
+    button_id:
+      name: Button
+      description: The button to configure.
       selector:
-        text: {}
+        device:
+          manufacturer: eWeLink
+          model: WB01
     press_action:
       name: Press Action
       description: Action to perform on Press.
@@ -26,7 +28,7 @@ blueprint:
         action: {}
   source_url: https://github.com/apollo1220/blueprints/blob/main/sonoff_zigbee_button.yaml
 variables:
-  zigbee_id: !input 'zigbee_id'
+  button_id: !input 'button_id'
   press_action: !input 'press_action'
   double_press_action: !input 'double_press_action'
   hold_action: !input 'hold_action'
@@ -34,8 +36,7 @@ trigger:
 - platform: event
   event_type: zha_event
   event_data:
-    endpoint_id: 1
-    unique_id: !input 'zigbee_id'
+    device_id: !input 'button_id'
 action:
 - choose:
   - conditions:
