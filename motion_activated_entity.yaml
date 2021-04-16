@@ -90,10 +90,18 @@ blueprint:
       name: (OPTIONAL) Turn-off entity
       description: If defined, this entity will be turned off instead of the default
         target entity. This can be helpful when using target entities of type scene
-        or script.
+        or script. 
+        You cannot use Turn-off entity and Turn-off action, only one or the other. If both are defined, Turn-off entity will be used.
       default:
       selector:
         entity: {}
+    target_off_action:
+      name: (OPTIONAL) Turn-off action
+      description: If defined, this action will be run instead of the turning off the default target entity. This can be helpful when using taget entities of type scene or script. 
+        You cannot use Turn-off entity and Turn-off action, only one or the other. If both are defined, Turn-off entity will be used.
+      default:
+      selector:
+        action: {}
   source_url: https://github.com/apollo1220/blueprints/blob/main/motion_activated_entity.yaml
 mode: restart
 max_exceeded: silent
@@ -107,6 +115,7 @@ variables:
   no_motion_wait: !input 'no_motion_wait'
   turn_off_blocker_entity: !input 'turn_off_blocker_entity'
   target_off_entity: !input 'target_off_entity'
+  target_off_action: !input 'target_off_action'
 trigger:
   platform: state
   entity_id: !input 'motion_sensor'
@@ -155,6 +164,10 @@ action:
     sequence:
     - service: homeassistant.turn_off
       entity_id: !input 'target_off_entity'
+  - conditions:
+    - condition: template
+      value_template: '{{ (target_off_action != none) }}'
+    sequence: !input 'target_off_action'
   default:
   - service: homeassistant.turn_off
     entity_id: !input 'target_entity'
