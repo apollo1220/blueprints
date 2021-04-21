@@ -1,0 +1,332 @@
+blueprint:
+  name: Philips Dimmer Remote
+  description: 'Control lights with a Philips Hue Dimmer Switch.
+
+
+    The top "on" button will turn the lights on to the last set brightness
+
+    (unless the force brightness is toggled on in the blueprint).
+
+
+    Dim up/down buttons will change the brightness smoothly and can be pressed
+
+    and hold until the brightness is satisfactory.
+
+
+    The bottom "off" button will turn the lights off.
+
+    If defined it will optionally control up to 5 different sets of lights using the double through quintuple press options. Whichever light was turned on last will be controlled by the dimmer buttons.
+
+    '
+  domain: automation
+  input:
+    remote:
+      name: Philips Hue Dimmer Switch
+      description: Pick either RWL020 (US) or RWL021 (EU)
+      selector:
+        device:
+          integration: zha
+          manufacturer: Philips
+          model: RWL020
+    single_light:
+      name: Single Press Light
+      description: The light(s) to control with single press
+      selector:
+        target:
+          entity:
+            domain: light
+    double_light:
+      name: (OPTIONAL) Double Press Light
+      description: The light(s) to control with double press (can also use switches)
+      default: {}
+      selector:
+        target:
+          entity: {}
+    triple_light:
+      name: (OPTIONAL) Triple Press Light
+      description: The light(s) to control with triple press (can also use switches)
+      default: {}
+      selector:
+        target:
+          entity: {}
+    quadruple_light:
+      name: (OPTIONAL) Quadruple Press Light
+      description: The light(s) to control with quadruple press (can also use switches)
+      default: {}
+      selector:
+        target:
+          entity: {}
+    quintuple_light:
+      name: (OPTIONAL) Quintuple Press Light
+      description: The light(s) to control with quintuple press (can also use switches)
+      default: {}
+      selector:
+        target:
+          entity: {}
+    force_brightness:
+      name: Force turn on brightness
+      description:
+        'Force the brightness to the set level below, when the "on" button
+        on the remote is pushed and lights turn on.'
+      default: false
+      selector:
+        boolean: {}
+    brightness:
+      name: Brightness
+      description: Brightness of the light(s) when turning on
+      default: 100
+      selector:
+        number:
+          min: 0.0
+          max: 100.0
+          mode: slider
+          step: 1.0
+          unit_of_measurement: "%"
+    current_light:
+      name: (OPTIONAL) Current Light
+      description:
+        'Text helper to track the current light to dim. Set for the dimmer controls to change which light they are controlling according to the last one turned on.
+        For instance, double press "on" and then the dimmer buttons will control the Double Press Light'
+      default:
+      selector:
+        entity:
+          domain: input_text
+  source_url: https://github.com/apollo1220/blueprints/blob/main/philips_zigbee_remote.yaml
+mode: restart
+max_exceeded: silent
+variables:
+  double_light: !input "double_light"
+  triple_light: !input "triple_light"
+  quadruple_light: !input "quadruple_light"
+  quintuple_light: !input "quintuple_light"
+  force_brightness: !input "force_brightness"
+  current_light: !input "current_light"
+  lights:
+    single_light: !input "single_light"
+    double_light: !input "double_light"
+    triple_light: !input "triple_light"
+    quadruple_light: !input "quadruple_light"
+    quintuple_light: !input "quintuple_light"
+trigger:
+  - platform: event
+    event_type: zha_event
+    event_data:
+      device_id: !input "remote"
+action:
+  - variables:
+      command: "{{ trigger.event.data.command }}"
+      cluster_id: "{{ trigger.event.data.cluster_id }}"
+      endpoint_id: "{{ trigger.event.data.endpoint_id }}"
+      args: "{{ trigger.event.data.args }}"
+  - choose:
+      - conditions:
+          - "{{ command == 'on_press' }}"
+          - "{{ cluster_id == 64512 }}"
+          - "{{ endpoint_id == 2 }}"
+        sequence:
+          - choose:
+              - conditions: "{{ force_brightness }}"
+                sequence:
+                  - service: homeassistant.turn_on
+                    target: !input "single_light"
+                    data:
+                      transition: 1
+                      brightness_pct: !input "brightness"
+            default:
+              - service: homeassistant.turn_on
+                target: !input "single_light"
+                data:
+                  transition: 1
+          - choose:
+              - conditions: "{{ current_light != none }}"
+                sequence:
+                  - service: input_text.set_value
+                    target:
+                      entity_id: !input "current_light"
+                    data:
+                      value: single_light
+      - conditions:
+          - "{{ command == 'on_double_press' }}"
+          - "{{ cluster_id == 64512 }}"
+          - "{{ endpoint_id == 2 }}"
+          - "{{ double_light != none }}"
+        sequence:
+          - service: homeassistant.turn_on
+            target: !input "double_light"
+          - choose:
+              - conditions: "{{ current_light != none }}"
+                sequence:
+                  - service: input_text.set_value
+                    target:
+                      entity_id: !input "current_light"
+                    data:
+                      value: double_light
+      - conditions:
+          - "{{ command == 'on_triple_press' }}"
+          - "{{ cluster_id == 64512 }}"
+          - "{{ endpoint_id == 2 }}"
+          - "{{ triple_light != none }}"
+        sequence:
+          - service: homeassistant.turn_on
+            target: !input "triple_light"
+          - choose:
+              - conditions: "{{ current_light != none }}"
+                sequence:
+                  - service: input_text.set_value
+                    target:
+                      entity_id: !input "current_light"
+                    data:
+                      value: triple_light
+      - conditions:
+          - "{{ command == 'on_quadruple_press' }}"
+          - "{{ cluster_id == 64512 }}"
+          - "{{ endpoint_id == 2 }}"
+          - "{{ quadruple_light != none }}"
+        sequence:
+          - service: homeassistant.turn_on
+            target: !input "quadruple_light"
+          - choose:
+              - conditions: "{{ current_light != none }}"
+                sequence:
+                  - service: input_text.set_value
+                    target:
+                      entity_id: !input "current_light"
+                    data:
+                      value: quadruple_light
+      - conditions:
+          - "{{ command == 'on_quintuple_press' }}"
+          - "{{ cluster_id == 64512 }}"
+          - "{{ endpoint_id == 2 }}"
+          - "{{ quintuple_light != none }}"
+        sequence:
+          - service: homeassistant.turn_on
+            target: !input "quintuple_light"
+          - choose:
+              - conditions: "{{ current_light != none }}"
+                sequence:
+                  - service: input_text.set_value
+                    target:
+                      entity_id: !input "current_light"
+                    data:
+                      value: quintuple_light
+      - conditions:
+          - "{{ command == 'off_press' }}"
+          - "{{ cluster_id == 64512 }}"
+          - "{{ endpoint_id == 2 }}"
+        sequence:
+          - service: homeassistant.turn_off
+            target: !input "single_light"
+            data:
+              transition: 1
+      - conditions:
+          - "{{ command == 'off_double_press' }}"
+          - "{{ cluster_id == 64512 }}"
+          - "{{ endpoint_id == 2 }}"
+          - "{{ double_light != none }}"
+        sequence:
+          - service: homeassistant.turn_off
+            target: !input "double_light"
+      - conditions:
+          - "{{ command == 'off_triple_press' }}"
+          - "{{ cluster_id == 64512 }}"
+          - "{{ endpoint_id == 2 }}"
+          - "{{ triple_light != none }}"
+        sequence:
+          - service: homeassistant.turn_off
+            target: !input "triple_light"
+      - conditions:
+          - "{{ command == 'off_quadruple_press' }}"
+          - "{{ cluster_id == 64512 }}"
+          - "{{ endpoint_id == 2 }}"
+          - "{{ quadruple_light != none }}"
+        sequence:
+          - service: homeassistant.turn_off
+            target: !input "quadruple_light"
+      - conditions:
+          - "{{ command == 'off_quintuple_press' }}"
+          - "{{ cluster_id == 64512 }}"
+          - "{{ endpoint_id == 2 }}"
+          - "{{ quintuple_light != none }}"
+        sequence:
+          - service: homeassistant.turn_off
+            target: !input "quintuple_light"
+      - conditions:
+          - "{{ command == 'step' }}"
+          - "{{ cluster_id == 8 }}"
+          - "{{ endpoint_id == 1 }}"
+          - "{{ args == [0, 30, 9] }}"
+        sequence:
+          - choose:
+              - conditions: "{{ current_light != none }}"
+                sequence:
+                  - service: light.turn_on
+                    target: "{{ lights[states(current_light)] }}"
+                    data:
+                      brightness_step_pct: 10
+                      transition: 1
+            default:
+              - service: light.turn_on
+                target: !input "single_light"
+                data:
+                  brightness_step_pct: 10
+                  transition: 1
+      - conditions:
+          - "{{ command == 'step' }}"
+          - "{{ cluster_id == 8 }}"
+          - "{{ endpoint_id == 1 }}"
+          - "{{ args == [0, 56, 9] }}"
+        sequence:
+          - choose:
+              - conditions: "{{ current_light != none }}"
+                sequence:
+                  - service: light.turn_on
+                    target: "{{ lights[states(current_light)] }}"
+                    data:
+                      brightness_step_pct: 25
+                      transition: 1
+            default:
+              - service: light.turn_on
+                target: !input "single_light"
+                data:
+                  brightness_step_pct: 25
+                  transition: 1
+      - conditions:
+          - "{{ command == 'step' }}"
+          - "{{ cluster_id == 8 }}"
+          - "{{ endpoint_id == 1 }}"
+          - "{{ args == [1, 30, 9] }}"
+        sequence:
+          - choose:
+              - conditions: "{{ current_light != none }}"
+                sequence:
+                  - service: light.turn_on
+                    target: "{{ lights[states(current_light)] }}"
+                    data:
+                      brightness_step_pct: -10
+                      transition: 1
+            default:
+              - service: light.turn_on
+                target: !input "single_light"
+                data:
+                  brightness_step_pct: -10
+                  transition: 1
+      - conditions:
+          - "{{ command == 'step' }}"
+          - "{{ cluster_id == 8 }}"
+          - "{{ endpoint_id == 1 }}"
+          - "{{ args == [1, 56, 9] }}"
+        sequence:
+          - choose:
+              - conditions: "{{ current_light != none }}"
+                sequence:
+                  - service: light.turn_on
+                    target: "{{ lights[states(current_light)] }}"
+                    data:
+                      brightness_step_pct: -25
+                      transition: 1
+            default:
+              - service: light.turn_on
+                target: !input "single_light"
+                data:
+                  brightness_step_pct: -25
+                  transition: 1
