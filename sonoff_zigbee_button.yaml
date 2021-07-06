@@ -17,13 +17,15 @@ blueprint:
       selector:
         action: {}
     double_press_action:
-      name: Double Press Action
+      name: (Optional) Double Press Action
       description: Action to perform on Double Press.
+      default: {}
       selector:
         action: {}
     hold_action:
-      name: Hold Action
+      name: (Optional) Hold Action
       description: Action to perform on Hold.
+      default: {}
       selector:
         action: {}
   source_url: https://github.com/apollo1220/blueprints/blob/main/sonoff_zigbee_button.yaml
@@ -40,14 +42,13 @@ trigger:
 action:
 - choose:
   - conditions:
-    - condition: template
-      value_template: '{{ trigger.event.data.command == "toggle" }}'
+      - '{{ trigger.event.data.command == "toggle" }}'
     sequence: !input 'press_action'
   - conditions:
-    - condition: template
-      value_template: '{{ trigger.event.data.command == "on" }}'
+      - '{{ trigger.event.data.command == "on" }}'
+      - '{{ double_press_action != none }}'
     sequence: !input 'double_press_action'
   - conditions:
-    - condition: template
-      value_template: '{{ trigger.event.data.command == "off" }}'
+      - '{{ trigger.event.data.command == "off" }}'
+      - '{{ hold_action != none }}'
     sequence: !input 'hold_action'
