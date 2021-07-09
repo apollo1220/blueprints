@@ -291,6 +291,23 @@ action:
                   brightness_step_pct: 25
                   transition: 1
       - conditions:
+          - "{{ command == 'up_press' }}"
+        sequence:
+          - choose:
+              - conditions: "{{ current_light != none }}"
+                sequence:
+                  - service: light.turn_on
+                    target: "{{ lights[states(current_light)] }}"
+                    data:
+                      brightness_step_pct: 10
+                      transition: 1
+            default:
+              - service: light.turn_on
+                target: !input "single_light"
+                data:
+                  brightness_step_pct: 10
+                  transition: 1
+      - conditions:
           - "{{ command == 'step' }}"
           - "{{ cluster_id == 8 }}"
           - "{{ endpoint_id == 1 }}"
@@ -329,4 +346,21 @@ action:
                 target: !input "single_light"
                 data:
                   brightness_step_pct: -25
+                  transition: 1
+      - conditions:
+          - "{{ command == 'down_press' }}"
+        sequence:
+          - choose:
+              - conditions: "{{ current_light != none }}"
+                sequence:
+                  - service: light.turn_on
+                    target: "{{ lights[states(current_light)] }}"
+                    data:
+                      brightness_step_pct: -10
+                      transition: 1
+            default:
+              - service: light.turn_on
+                target: !input "single_light"
+                data:
+                  brightness_step_pct: -10
                   transition: 1
