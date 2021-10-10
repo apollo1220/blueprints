@@ -54,7 +54,7 @@ blueprint:
       selector:
         number:
           min: 0
-          max: 100000
+          max: 100
           unit_of_measurement: lx
     blocker_entity:
       name: (OPTIONAL) Blocking entity
@@ -134,8 +134,8 @@ condition:
     {% if time_limit_before != none and time_limit_after == none %} {{ states[time_limit_before].state
     > current_time }} {% elif time_limit_before == none and time_limit_after != none
     %} {{ states[time_limit_after].state < current_time }} {% elif time_limit_before
-    != none and time_limit_after != none %} {% set before_limit_is_on_next_day = time_limit_after
-    > time_limit_before  %} {% if not before_limit_is_on_next_day %} {{ (states[time_limit_after].state
+    != none and time_limit_after != none %} {% set before_limit_is_on_next_day = states[time_limit_after].state
+    > states[time_limit_before].state  %} {% if not before_limit_is_on_next_day %} {{ (states[time_limit_after].state
     < current_time) and (states[time_limit_before].state > current_time) }} {% elif
     before_limit_is_on_next_day %} {{ (states[time_limit_before].state > current_time)
     or (states[time_limit_after].state < current_time) }} {% endif %} {% else %} true
