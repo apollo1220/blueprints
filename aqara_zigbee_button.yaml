@@ -1,0 +1,56 @@
+blueprint:
+  name: Aqara Zigbee Button
+  description: Setup actions for three functions of the Aqara Zigbee button with
+    Press, Double Press, and Hold.
+  domain: automation
+  input:
+    button_id:
+      name: Button
+      description: The button to configure.
+      selector:
+        device:
+          manufacturer: LUMI
+          model: lumi.remote.b1acn01
+    press_action:
+      name: Press Action
+      description: Action to perform on Press.
+      default: []
+      selector:
+        action: {}
+    double_press_action:
+      name: Double Press Action
+      description: Action to perform on Double Press.
+      default: []
+      selector:
+        action: {}
+    hold_action:
+      name: Hold Action
+      description: Action to perform on Hold.
+      default: []
+      selector:
+        action: {}
+  source_url: https://github.com/apollo1220/blueprints/blob/main/aqara_zigbee_button.yaml
+variables:
+  button_id: !input 'button_id'
+  press_action: !input 'press_action'
+  double_press_action: !input 'double_press_action'
+  hold_action: !input 'hold_action'
+trigger:
+- platform: event
+  event_type: zha_event
+  event_data:
+    device_id: !input 'button_id'
+action:
+- choose:
+  - conditions:
+    - condition: template
+      value_template: '{{ trigger.event.data.command == "single" }}'
+    sequence: !input 'press_action'
+  - conditions:
+    - condition: template
+      value_template: '{{ trigger.event.data.command == "double" }}'
+    sequence: !input 'double_press_action'
+  - conditions:
+    - condition: template
+      value_template: '{{ trigger.event.data.command == "hold" }}'
+    sequence: !input 'hold_action'
