@@ -33,8 +33,7 @@ blueprint:
       description: The light(s) to control with single press
       selector:
         target:
-          entity:
-            domain: light
+          entity: {}
     double_light:
       name: (OPTIONAL) Double Press Light
       description: The light(s) to control with double press (can also use switches)
@@ -121,8 +120,6 @@ action:
   - choose:
       - conditions:
           - "{{ command == 'on_press' }}"
-          - "{{ cluster_id == 64512 }}"
-          - "{{ endpoint_id == 2 }}"
         sequence:
           - choose:
               - conditions: "{{ force_brightness }}"
@@ -147,8 +144,6 @@ action:
                       value: single_light
       - conditions:
           - "{{ command == 'on_double_press' }}"
-          - "{{ cluster_id == 64512 }}"
-          - "{{ endpoint_id == 2 }}"
           - "{{ double_light != none }}"
         sequence:
           - service: homeassistant.turn_on
@@ -163,8 +158,6 @@ action:
                       value: double_light
       - conditions:
           - "{{ command == 'on_triple_press' }}"
-          - "{{ cluster_id == 64512 }}"
-          - "{{ endpoint_id == 2 }}"
           - "{{ triple_light != none }}"
         sequence:
           - service: homeassistant.turn_on
@@ -179,8 +172,6 @@ action:
                       value: triple_light
       - conditions:
           - "{{ command == 'on_quadruple_press' }}"
-          - "{{ cluster_id == 64512 }}"
-          - "{{ endpoint_id == 2 }}"
           - "{{ quadruple_light != none }}"
         sequence:
           - service: homeassistant.turn_on
@@ -195,8 +186,6 @@ action:
                       value: quadruple_light
       - conditions:
           - "{{ command == 'on_quintuple_press' }}"
-          - "{{ cluster_id == 64512 }}"
-          - "{{ endpoint_id == 2 }}"
           - "{{ quintuple_light != none }}"
         sequence:
           - service: homeassistant.turn_on
@@ -211,8 +200,6 @@ action:
                       value: quintuple_light
       - conditions:
           - "{{ command == 'off_press' }}"
-          - "{{ cluster_id == 64512 }}"
-          - "{{ endpoint_id == 2 }}"
         sequence:
           - service: homeassistant.turn_off
             target: !input "single_light"
@@ -220,40 +207,30 @@ action:
               transition: 1
       - conditions:
           - "{{ command == 'off_double_press' }}"
-          - "{{ cluster_id == 64512 }}"
-          - "{{ endpoint_id == 2 }}"
           - "{{ double_light != none }}"
         sequence:
           - service: homeassistant.turn_off
             target: !input "double_light"
       - conditions:
           - "{{ command == 'off_triple_press' }}"
-          - "{{ cluster_id == 64512 }}"
-          - "{{ endpoint_id == 2 }}"
           - "{{ triple_light != none }}"
         sequence:
           - service: homeassistant.turn_off
             target: !input "triple_light"
       - conditions:
           - "{{ command == 'off_quadruple_press' }}"
-          - "{{ cluster_id == 64512 }}"
-          - "{{ endpoint_id == 2 }}"
           - "{{ quadruple_light != none }}"
         sequence:
           - service: homeassistant.turn_off
             target: !input "quadruple_light"
       - conditions:
           - "{{ command == 'off_quintuple_press' }}"
-          - "{{ cluster_id == 64512 }}"
-          - "{{ endpoint_id == 2 }}"
           - "{{ quintuple_light != none }}"
         sequence:
           - service: homeassistant.turn_off
             target: !input "quintuple_light"
       - conditions:
           - "{{ command == 'step' }}"
-          - "{{ cluster_id == 8 }}"
-          - "{{ endpoint_id == 1 }}"
           - "{{ args == [0, 30, 9] }}"
         sequence:
           - choose:
@@ -272,8 +249,6 @@ action:
                   transition: 1
       - conditions:
           - "{{ command == 'step' }}"
-          - "{{ cluster_id == 8 }}"
-          - "{{ endpoint_id == 1 }}"
           - "{{ args == [0, 56, 9] }}"
         sequence:
           - choose:
@@ -309,8 +284,6 @@ action:
                   transition: 1
       - conditions:
           - "{{ command == 'step' }}"
-          - "{{ cluster_id == 8 }}"
-          - "{{ endpoint_id == 1 }}"
           - "{{ args == [1, 30, 9] }}"
         sequence:
           - choose:
@@ -329,8 +302,6 @@ action:
                   transition: 1
       - conditions:
           - "{{ command == 'step' }}"
-          - "{{ cluster_id == 8 }}"
-          - "{{ endpoint_id == 1 }}"
           - "{{ args == [1, 56, 9] }}"
         sequence:
           - choose:
