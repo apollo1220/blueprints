@@ -1,0 +1,77 @@
+blueprint:
+  name: Camera Detection
+  description: ''
+  domain: automation
+  input:
+    notify_device:
+      name: Device to notify
+      description: Device needs to run the official Home Assistant app to receive
+        notifications
+      selector:
+        device:
+          integration: mobile_app
+    camera:
+      name: Camera
+      description: Camera for which this detection is running
+      selector:
+        entity:
+          domain: camera
+    person_sensor:
+      name: Person detection sensor
+      description: Binary sensor which is on when a person is detected
+      selector:
+        entity:
+          domain: binary_sensor
+    vehicle_sensor:
+      name: Vehicle detection sensor
+      description: Binary sensor which is on when a vehicle is detected
+      selector:
+        entity:
+          domain: binary_sensor
+    blocker_entity:
+      name: (OPTIONAL) Blocking entity
+      description: If this entity's state is on, it will prevent the automation from
+        running. E.g. sleepmode or away mode.
+      default:
+      selector:
+        entity:
+          domain: binary_sensor
+  source_url: https://github.com/apollo1220/blueprints/blob/main/camera_detection_notification.yaml
+mode: single
+max_exceeded: silent
+variables:
+  notify_device: !input 'notify_device'
+  camera: !input 'camera'
+  blocker_entity: !input 'blocker_entity'
+trigger:
+  - platform: state
+    entity_id: !input 'person_sensor'
+    from: 'off'
+    to: 'on'
+    id: 'person'
+  - platform: state
+    entity_id: !input 'vehicle_sensor'
+    from: 'off'
+    to: 'on'
+    id: 'vehicle'
+condition:
+- condition: template
+  value_template: '{{ (blocker_entity == none) or (states[blocker_entity].state ==
+    ''off'') }}'
+action:
+- service: camera.snapshot
+  data:
+    filename: /config/www/doorbell/{{ trigger.to_state.last_changed | as_timestamp | timestamp_custom("%Y-%m-%d_%H-%M-%S") }}.jpg
+  target:
+    entity_id: !input 'notify_device'
+- service: notify.mobile_app_{{ device_attr(notify_device, 'name').lower() }}
+  data:
+    title: Camera Detection
+    message: "{{ state_attr(camera, 'friendly_name') }} has detected a {{trigger.id}}"
+    data:
+      image: /local/doorbell/{{ trigger.to_state.last_changed | as_timestamp | timestamp_custom("%Y-%m-%d_%H-%M-%S") }}.jpg
+      channel: Motion
+      importance: high
+      ttl: 0
+      priority: high
+      notification_icon: mdi:cctv
