@@ -28,6 +28,15 @@ blueprint:
       selector:
         entity:
           domain: binary_sensor
+    no_motion_wait:
+      name: Time between notifications (seconds)
+      description: Time in seconds to wait before sending another notification of motion (to avoid spamming).
+      default: 0
+      selector:
+        number:
+          min: 0
+          max: 300
+          unit_of_measurement: seconds
     blocker_entity:
       name: (OPTIONAL) Blocking entity
       description: If this entity's state is on, it will prevent the automation from
@@ -43,6 +52,7 @@ variables:
   notify_device: !input 'notify_device'
   camera: !input 'camera'
   blocker_entity: !input 'blocker_entity'
+  no_motion_wait: !input 'no_motion_wait'
 trigger:
   - platform: state
     entity_id: !input 'person_sensor'
@@ -75,3 +85,7 @@ action:
       ttl: 0
       priority: high
       notification_icon: mdi:cctv
+- condition: template
+  value_template: '{{ no_motion_wait != none }}'
+- delay:
+    seconds: '{{ no_motion_wait | int }}'
