@@ -73,7 +73,7 @@ action:
   data:
     filename: /config/www/doorbell/{{ trigger.to_state.last_changed | as_timestamp | timestamp_custom("%Y-%m-%d_%H-%M-%S") }}.jpg
   target:
-    entity_id: !input 'notify_device'
+    entity_id: !input 'camera'
 - service: notify.mobile_app_{{ device_attr(notify_device, 'name').lower() }}
   data:
     title: Camera Detection
