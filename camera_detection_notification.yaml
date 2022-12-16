@@ -28,6 +28,12 @@ blueprint:
       selector:
         entity:
           domain: binary_sensor
+    store_location:
+      name: Folder to store snapshots in
+      description: Folder within your www folder where snapshots should be stored. Do not include www directory.
+      default: 'doorbell'
+      selector:
+        text:
     no_motion_wait:
       name: Time between notifications (seconds)
       description: Time in seconds to wait before sending another notification of motion (to avoid spamming).
@@ -53,6 +59,7 @@ variables:
   camera: !input 'camera'
   blocker_entity: !input 'blocker_entity'
   no_motion_wait: !input 'no_motion_wait'
+  store_location: !input 'store_location'
 trigger:
   - platform: state
     entity_id: !input 'person_sensor'
@@ -66,12 +73,11 @@ trigger:
     id: 'vehicle'
 condition:
 - condition: template
-  value_template: '{{ (blocker_entity == none) or (states[blocker_entity].state ==
-    ''off'') }}'
+  value_template: '{{ (blocker_entity == none) or (states[blocker_entity].state == ''off'') }}'
 action:
 - service: camera.snapshot
   data:
-    filename: /config/www/doorbell/{{ trigger.to_state.last_changed | as_timestamp | timestamp_custom("%Y-%m-%d_%H-%M-%S") }}.jpg
+    filename: /config/www/{{store_location}}/{{ trigger.to_state.last_changed | as_timestamp | timestamp_custom("%Y-%m-%d_%H-%M-%S") }}.jpg
   target:
     entity_id: !input 'camera'
 - service: notify.mobile_app_{{ device_attr(notify_device, 'name').lower() }}
@@ -79,7 +85,7 @@ action:
     title: Camera Detection
     message: "{{ state_attr(camera, 'friendly_name') }} has detected a {{trigger.id}}"
     data:
-      image: /local/doorbell/{{ trigger.to_state.last_changed | as_timestamp | timestamp_custom("%Y-%m-%d_%H-%M-%S") }}.jpg
+      image: /local/{{store_location}}/{{ trigger.to_state.last_changed | as_timestamp | timestamp_custom("%Y-%m-%d_%H-%M-%S") }}.jpg
       channel: Motion
       importance: high
       ttl: 0
