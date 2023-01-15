@@ -80,7 +80,7 @@ action:
     filename: /config/www/{{store_location}}/{{ trigger.to_state.last_changed | as_timestamp | timestamp_custom("%Y-%m-%d_%H-%M-%S") }}.jpg
   target:
     entity_id: !input 'camera'
-- service: notify.mobile_app_{{ device_attr(notify_device, 'name').lower() }}
+- service: notify.mobile_app_{{ device_attr(notify_device, 'name').lower() |regex_replace(find=' ', replace='_', ignorecase=False) }}
   data:
     title: Camera Detection
     message: "{{ state_attr(camera, 'friendly_name') }} has detected a {{trigger.id}}"
