@@ -83,7 +83,7 @@ action:
       params: '{% if (trigger.event.data.params is defined) %}{{trigger.event.data.params}}{% endif %}'
       step_size: '{% if (trigger.event.data.params is defined) and (trigger.event.data.params.step_size is defined) %}{{trigger.event.data.params.step_size}}{% endif %}'
       step_mode: '{% if (trigger.event.data.params is defined) and (trigger.event.data.params.step_mode is defined) %}{{trigger.event.data.params.step_mode}}{% endif %}'
-      scene: '{% if (trigger.event.data.params is defined) and (trigger.event.data.params.scene is defined) %}{{trigger.event.data.params.scene}}{% endif %}'
+      scene: '{% if (trigger.event.data.params is defined) and (trigger.event.data.params.scene_id is defined) %}{{trigger.event.data.params.scene_id}}{% endif %}'
   - choose:
       - conditions:
           - "{{ command == 'recall' }}"
