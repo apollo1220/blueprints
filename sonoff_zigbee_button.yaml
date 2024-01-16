@@ -9,8 +9,11 @@ blueprint:
       description: The button to configure.
       selector:
         device:
-          manufacturer: eWeLink
-          model: WB01
+          filter:
+            - manufacturer: eWeLink
+              model: WB01
+            - manufacturer: eWeLink
+              model: SNZB-01P
     press_action:
       name: Press Action
       description: Action to perform on Press.
