@@ -23,8 +23,16 @@ blueprint:
         entity:
           domain: binary_sensor
     vehicle_sensor:
-      name: Vehicle detection sensor
+      name: (OPTIONAL) Vehicle detection sensor
       description: Binary sensor which is on when a vehicle is detected
+      default:
+      selector:
+        entity:
+          domain: binary_sensor
+    pet_sensor:
+      name: (OPTIONAL) Pet detection sensor
+      description: Binary sensor which is on when a pet is detected
+      default:
       selector:
         entity:
           domain: binary_sensor
@@ -60,17 +68,21 @@ variables:
   blocker_entity: !input 'blocker_entity'
   no_motion_wait: !input 'no_motion_wait'
   store_location: !input 'store_location'
+trigger_variables:
+  vehicle_sensor: !input 'vehicle_sensor'
+  pet_sensor: !input 'pet_sensor'
 trigger:
   - platform: state
     entity_id: !input 'person_sensor'
     from: 'off'
     to: 'on'
     id: 'person'
-  - platform: state
-    entity_id: !input 'vehicle_sensor'
-    from: 'off'
-    to: 'on'
+  - platform: template
+    value_template: "{{ is_state ( vehicle_sensor , 'on' ) }}"
     id: 'vehicle'
+  - platform: template
+    value_template: "{{ is_state ( pet_sensor , 'on' ) }}"
+    id: 'pet'
 condition:
 - condition: template
   value_template: '{{ (blocker_entity == none) or (states[blocker_entity].state == ''off'') }}'
