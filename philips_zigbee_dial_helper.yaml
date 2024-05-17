@@ -1,0 +1,146 @@
+blueprint:
+  name: Philips Tap Dial Switch - Helper Mapper
+  description: 'Map the buttons and rotary dial to Home Assistant helpers.'
+  domain: automation
+  input:
+    remote:
+      name: Philips Hue Tap Switch
+      selector:
+        device:
+          integration: zha
+          manufacturer: Signify Netherlands B.V.
+          model: RDM002
+          multiple: false
+    first_button:
+      name: Button One
+      description: The button helper that matches the state of the first button
+      selector:
+        entity:
+          domain:
+          - input_button
+    second_button:
+      name: Button Two
+      description: The button helper that matches the state of the second button
+      default: {}
+      selector:
+        entity:
+          domain:
+          - input_button
+    third_button:
+      name: Button Three
+      description: The button helper that matches the state of the third button
+      default: {}
+      selector:
+        entity:
+          domain:
+          - input_button
+    forth_button:
+      name: Button Four
+      description: The button helper that matches the state of the forth button
+      default: {}
+      selector:
+        entity:
+          domain:
+          - input_button
+    rotary_value:
+      name: Rotary Memory
+      description: The number helper that will store the current value of the rotary encoder
+      default: {}
+      selector:
+        entity:
+          domain:
+          - input_number
+    dim_scale:
+      name: Rotary Scale
+      description: Scale factor for the rotary scale. This value will be multiplied by the value given from the dial. So lower number, finer increments. Larger number, coarser increments.
+      default: 1.0
+      selector:
+        number:
+          min: 0.0
+          max: 5.0
+          step: 0.01
+          mode: slider
+mode: restart
+max_exceeded: silent
+variables:
+  first_button: !input first_button
+  second_button: !input second_button
+  third_button: !input third_button
+  forth_button: !input forth_button
+  rotary_value: !input rotary_value
+  dim_scale: !input dim_scale
+trigger:
+- platform: event
+  event_type: zha_event
+  event_data:
+    device_id: !input remote
+action:
+- variables:
+    command: '{{ trigger.event.data.command }}'
+    args: '{% if (trigger.event.data.args is defined) %}{{trigger.event.data.args}}{%
+      endif %}'
+    params: '{% if (trigger.event.data.params is defined) %}{{trigger.event.data.params}}{%
+      endif %}'
+    step_size: '{% if (trigger.event.data.params is defined) and (trigger.event.data.params.step_size
+      is defined) %}{{trigger.event.data.params.step_size}}{% endif %}'
+    step_mode: '{% if (trigger.event.data.params is defined) and (trigger.event.data.params.step_mode
+      is defined) %}{{trigger.event.data.params.step_mode}}{% endif %}'
+    scene: '{% if (trigger.event.data.params is defined) and (trigger.event.data.params.scene_id
+      is defined) %}{{trigger.event.data.params.scene_id}}{% endif %}'
+- choose:
+  - conditions:
+    - '{{ command == ''recall'' }}'
+    - '{{ scene == 1 }}'
+    sequence:
+    - service: input_button.press
+      target:
+        entity_id: !input first_button
+  - conditions:
+    - '{{ command == ''recall'' }}'
+    - '{{ scene == 0 }}'
+    sequence:
+    - service: input_button.press
+      target:
+        entity_id: !input second_button
+  - conditions:
+    - '{{ command == ''recall'' }}'
+    - '{{ scene == 5 }}'
+    sequence:
+    - service: input_button.press
+      target:
+        entity_id: !input third_button
+  - conditions:
+    - '{{ command == ''recall'' }}'
+    - '{{ scene == 4 }}'
+    sequence:
+    - service: input_button.press
+      target:
+        entity_id: !input forth_button
+  - conditions:
+    - '{{ command == ''step_with_on_off'' }}'
+    - '{{ step_mode == ''StepMode.Up'' }}'
+    sequence:
+    - service: input_number.set_value
+      target:
+        entity_id: !input rotary_value
+      data:
+        value: >
+          {% set entity = states.input_number[rotary_value.split('.')[1]] %}
+          {% set current_value = entity.state | float %}
+          {% set max_value = entity.attributes.max | float %}
+          {% set new_value = current_value + (step_size * dim_scale) %}
+          {{ [new_value, max_value] | min }}
+  - conditions:
+    - '{{ command == ''step_with_on_off'' }}'
+    - '{{ step_mode == ''StepMode.Down'' }}'
+    sequence:
+    - service: input_number.set_value
+      target:
+        entity_id: !input rotary_value
+      data:
+        value: >
+          {% set entity = states.input_number[rotary_value.split('.')[1]] %}
+          {% set current_value = entity.state | float %}
+          {% set max_value = entity.attributes.min | float %}
+          {% set new_value = current_value - (step_size * dim_scale) %}
+          {{ [new_value, max_value] | max }}
