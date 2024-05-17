@@ -1,0 +1,54 @@
+blueprint:
+  name: Next Element Selector
+  description: |
+    A blueprint to move to the next element of an input_select when a button is pressed after another, within a set interval.
+  domain: automation
+  input:
+    mode_button_entity:
+      name: Mode Button
+      description: "The entity ID of the button which can trigger change mode."
+      selector:
+        entity:
+          domain: input_button
+    change_button_entity:
+      name: Change Button
+      description: "The entity ID of the button which will trigger the change."
+      selector:
+        entity:
+          domain: input_button
+    select_entity:
+      name: Select Entity
+      description: "The entity ID of the input_select to move to the next element."
+      selector:
+        entity:
+          domain: input_select
+    change_tap_timeout:
+      name: Action Timeout
+      description: "The timeout in seconds to consider a mode change."
+      default: 2
+      selector:
+        number:
+          min: 1
+          max: 10.0
+          step: 1
+
+trigger:
+  - platform: state
+    entity_id: !input change_button_entity
+
+variables:
+  change_button_entity: !input change_button_entity
+  mode_button_entity: !input mode_button_entity
+  select_entity: !input select_entity
+  change_tap_timeout: !input change_tap_timeout
+
+condition:
+  - condition: template
+    value_template: "{{ states.input_button[change_button_entity.split('.')[1]].last_changed | as_timestamp - states.input_button[mode_button_entity.split('.')[1]].last_changed | as_timestamp  <= change_tap_timeout }}"
+
+action:
+  - service: input_select.select_next
+    target:
+      entity_id: !input select_entity
+
+
