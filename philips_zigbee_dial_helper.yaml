@@ -50,6 +50,13 @@ blueprint:
         entity:
           domain:
           - input_number
+    rotary_direction:
+      name: Rotary Direction
+      description: The direction in which the wheel last spun. This is a number helper, with 0 = left and 1 = right.
+      selector:
+        entity:
+          domain:
+          - input_number
     dim_scale:
       name: Rotary Scale
       description: Scale factor for the rotary scale. This value will be multiplied by the value given from the dial. So lower number, finer increments. Larger number, coarser increments.
@@ -68,6 +75,7 @@ variables:
   third_button: !input third_button
   forth_button: !input forth_button
   rotary_value: !input rotary_value
+  rotary_direction: !input rotary_direction
   dim_scale: !input dim_scale
 trigger:
 - platform: event
@@ -130,6 +138,11 @@ action:
           {% set max_value = entity.attributes.max | float %}
           {% set new_value = current_value + (step_size * dim_scale) %}
           {{ [new_value, max_value] | min }}
+    - service: input_number.set_value
+      target:
+        entity_id: !input rotary_direction
+      data:
+        value: 1
   - conditions:
     - '{{ command == ''step_with_on_off'' }}'
     - '{{ step_mode == ''StepMode.Down'' }}'
@@ -144,3 +157,8 @@ action:
           {% set max_value = entity.attributes.min | float %}
           {% set new_value = current_value - (step_size * dim_scale) %}
           {{ [new_value, max_value] | max }}
+    - service: input_number.set_value
+      target:
+        entity_id: !input rotary_direction
+      data:
+        value: 0
